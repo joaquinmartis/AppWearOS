@@ -1,0 +1,179 @@
+@file:OptIn(ExperimentalHorologistApi::class)
+
+package com.android.wearable.cuandollegawearos.presentation
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material.*
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
+import com.google.android.horologist.compose.layout.AppScaffold
+import com.google.android.horologist.compose.layout.ScalingLazyColumn
+import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
+import com.google.android.horologist.compose.layout.ScreenScaffold
+import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
+import com.android.wearable.cuandollegawearos.network.*
+import com.android.wearable.cuandollegawearos.business.*
+import android.util.Log
+import com.android.wearable.cuandollegawearos.business.Arribo
+import com.android.wearable.cuandollegawearos.network.PostResponse
+import com.android.wearable.cuandollegawearos.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+
+@Composable
+fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    AppScaffold {
+        val columnState = rememberResponsiveColumnState(
+            contentPadding = ScalingLazyColumnDefaults.padding(
+                first = ScalingLazyColumnDefaults.ItemType.Text,
+                last = ScalingLazyColumnDefaults.ItemType.Chip
+            )
+        )
+
+        ScreenScaffold(scrollState = columnState) {
+            ScalingLazyColumn(
+                columnState = columnState
+            ) {
+                item {
+                    Text(
+                        text = "Próximos Colectivos",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colors.onBackground,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                when (uiState) {
+                    is ArribosUiState.Loading -> {
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Cargando...",
+                                color = MaterialTheme.colors.onBackground,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                    is ArribosUiState.Error -> {
+                        val error = (uiState as ArribosUiState.Error).message
+                        item {
+                            Text(
+                                text = "Error",
+                                color = Color.Red,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = error,
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    is ArribosUiState.Success -> {
+                        val arribos = (uiState as ArribosUiState.Success).arribos
+                        if (arribos.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "Sin arribos",
+                                    color = MaterialTheme.colors.onBackground,
+                                    fontSize = 14.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        } else {
+                            items(arribos.size) { idx ->
+                                val arribo = arribos[idx]
+                                val colorCoche = arribo.precision.colorAsociado
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(60.dp)
+                                            .clip(CircleShape)
+                                            .background(if (idx == 0) colorCoche else MaterialTheme.colors.primary),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "🚌",
+                                            fontSize = 24.sp
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = arribo.arribo,
+                                        color = MaterialTheme.colors.primary,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = arribo.descripcionLinea + " - " + arribo.descripcionBandera,
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 12.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Precisión: ${arribo.precision.descripcion}",
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 10.sp
+                                    )
+                                    /*if (arribo.desvioEnMinutos() != null) {
+                                        Text(
+                                            text = "Desvío: ${arribo.desvioEnMinutos()} min",
+                                            color = MaterialTheme.colors.onBackground,
+                                            fontSize = 10.sp
+                                        )
+                                    }*/
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item {
+                    Chip(
+                        onClick = { viewModel.cargarArribos() },
+                        label = {
+                            Text(
+                                text = "Actualizar",
+                                fontSize = 14.sp
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = uiState !is ArribosUiState.Loading
+                    )
+                }
+            }
+        }
+    }
+}
