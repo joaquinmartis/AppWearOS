@@ -35,15 +35,7 @@ import androidx.wear.compose.navigation.*
 
 
 /**
- * Simple "Hello, World" app meant as a starting point for a new project using Compose for Wear OS.
- *
- * Displays a centered [Text] composable and a list built with [Horologist]
- * (https://github.com/google/horologist).
- *
- * Use the Wear version of Compose Navigation. You can carry
- * over your knowledge from mobile and it supports the swipe-to-dismiss gesture (Wear OS's
- * back action). For more information, go here:
- * https://developer.android.com/reference/kotlin/androidx/wear/compose/navigation/package-summary
+ * Clase Main, entrypoint de la app. Se encarga de segmentar las pantallas principales de la app.
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

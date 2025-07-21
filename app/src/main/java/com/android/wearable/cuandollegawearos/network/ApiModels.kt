@@ -2,12 +2,13 @@ package com.android.wearable.cuandollegawearos.network
 
 import com.google.gson.annotations.SerializedName
 
-data class PostRequest(
-    val accion: String,
-    val identificadorParada: String,
-    val codigoLineaParada: String
-)
-
+/**
+ * ApiModels es un conjunto de data class(clases que no hacen nada, solo almacenan datos) con todas las posibles respuestas
+ * de la API y su parseo, las dataclass vienen de a pares, pues una tiene la respuesta con el codigo de estado y mensaje, y
+ * por otro lado estan los datos que interesan
+ *
+ *
+ */
 data class PostResponse(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,

@@ -19,6 +19,11 @@ sealed class SeleccionUiState {
     object Empty : SeleccionUiState()
 }
 
+/**
+ * SeleccionColectivoViewModel es una clase que es la controladora de la UI, envia mensajes hacia y desde el modelo.
+ */
+
+
 class SeleccionColectivoViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SeleccionUiState>(SeleccionUiState.Empty)
     val uiState: StateFlow<SeleccionUiState> = _uiState

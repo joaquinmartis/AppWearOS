@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ArribosViewModel es una clase que es la controladora de la UI, envia mensajes hacia y desde el modelo.
+ */
+
 sealed class ArribosUiState {
     object Loading : ArribosUiState()
     data class Success(val arribos: List<Arribo>) : ArribosUiState()
@@ -39,4 +43,4 @@ class ArribosViewModel : ViewModel(), ArribosManager.Listener {
     override fun onLoading() {
         _uiState.value = ArribosUiState.Loading
     }
-} 
+}

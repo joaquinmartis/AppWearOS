@@ -3,7 +3,11 @@ package com.android.wearable.cuandollegawearos.business
 import android.util.Log
 import com.android.wearable.cuandollegawearos.network.ArriboAPI
 
-// Data class Arribo con lógica relevante
+/***
+ * Arribo es una data class con todo lo recibido desde la API y ademas tiene un poco de logica para cosas como la presicion(en tiempo)
+ * Ademas hay logica referida a si el bondi viene atrasado, es decir que va mas "rapido" o mas "lento"
+  */
+
 
 data class Arribo(
     val descripcionLinea: String,
@@ -73,18 +77,6 @@ data class Arribo(
             codigoLineaParada = api.codigoLineaParada,
             precision = calculaPresiciontiempo(api.ultimaFechaHoraGPS)
         )
-
-        /*// Haversine para calcular distancia en km
-        private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-            val R = 6371 // Radio de la tierra en km
-            val dLat = Math.toRadians(lat2 - lat1)
-            val dLon = Math.toRadians(lon2 - lon1)
-            val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2)
-            val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-            return R * c
-        }*/
 
         private fun calculaPresiciontiempo(fechaBondi:String): EnumPrecision{
             var ret: EnumPrecision

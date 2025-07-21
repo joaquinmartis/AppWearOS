@@ -5,6 +5,12 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.Duration
 
+/**
+ * Utils es una clase que contiene funciones utiles para el resto del codigo.
+ *
+ *
+ */
+
 class Utils {
     /***
      * Convierte un String de fecha y hora a un LocalDateTime y lo compara con la hora local actual.

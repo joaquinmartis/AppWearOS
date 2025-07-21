@@ -15,6 +15,14 @@ import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import androidx.navigation.NavHostController
 
+
+/**
+ * SeleccionColectivoScreen es una funcion que al igual que ArriboScreen controla la UI. Tiene mucha mas logica, pues maneja listas
+ * y muchos mas mensajes entre capas.
+ *
+ *
+ */
+
 @Composable
 fun SeleccionColectivoScreen(
     navController: NavHostController,
@@ -32,9 +40,22 @@ fun SeleccionColectivoScreen(
                 when (uiState) {
                     is SeleccionUiState.Empty -> {
                         item {
-                            Button(onClick = { viewModel.cargarLineas() }) {
-                                Text("Comenzar selección")
-                            }
+                            Chip(
+                                onClick = { viewModel.cargarLineas() },
+                                label = {
+                                    Text(
+                                        text = "Comenzar selección",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                    )
+                                },
+                                colors = ChipDefaults.primaryChipColors(
+                                    backgroundColor = Color(0xFF1C1C1E),
+                                    contentColor = Color.White
+                                ),
+                                modifier = Modifier.padding(8.dp)
+                            )
                         }
                     }
                     is SeleccionUiState.Loading -> {

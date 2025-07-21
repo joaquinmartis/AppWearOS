@@ -3,6 +3,13 @@ package com.android.wearable.cuandollegawearos.business
 import android.util.Log
 import com.android.wearable.cuandollegawearos.network.*
 
+
+/**
+ * SeleccionColectivoManager es una clase que juega de modelo en el MVC. Maneja la logica de las request HTTP que se crean
+ * y el manejo de errores.Contiene una serie de funciones todas referidas a la seleccion de la parada y la linea de colectivo para
+ * obtener luego los arribos. Son 4 llamadas a la API. 1 obtiene lineas 2 obtiene calles por las que pasa esa linea
+ * 3 obtiene intersecciones por donde pasa esa linea y calle 4) obtiene los destinos de los colectivo(sentidos de circulacion) *
+ */
 class SeleccionColectivoManager {
     interface Callback<T> {
         fun onSuccess(data: T)

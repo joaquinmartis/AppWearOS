@@ -7,6 +7,13 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
+/**
+ * ArribosManager es una clase que juega de modelo en el MVC. Maneja la logica de las request HTTP que se crean
+ * y el manejo de errores.
+ *
+ */
+
 class ArribosManager {
     interface Listener {
         fun onArribosActualizados(arribos: List<Arribo>)
@@ -20,6 +27,14 @@ class ArribosManager {
         this.listener = listener
     }
 
+
+    /**
+     * Esta funcion se encarga de hacer la solicitud a la api de los arribos de colectivos en una parada y una determinada
+     * linea de colectivo. Actualiza la UI dinamicamente, por eso tiene listeners,
+     * @param idParada: id de la parada que el usuario marco
+     * @param codLineaParada: el codigo de la linea de colectivo que el usuario marco
+     *
+     */
     fun cargarArribos(idParada: String, codLineaParada: String) {
         listener?.onLoading()
         val call = RetrofitClient.apiService.sendPost(

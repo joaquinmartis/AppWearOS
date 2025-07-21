@@ -34,6 +34,11 @@ import retrofit2.Response
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 
+/**
+ * ArriboScreen es una clase de la UI que se encarga de maquetar y mostrar todo lo que se va a ver en la pantalla. Se comunica
+ * con ArribosViewModel en forma de MVC siendo este ultimo el controlador.
+ *
+ */
 
 @Composable
 fun ArriboScreen(

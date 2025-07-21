@@ -6,6 +6,13 @@ import retrofit2.http.POST
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Headers
 
+
+/**
+ * ApiService es una mega clase que engloba todas las posibles acciones que se pueden realizar con la API. Incluye el bypass del CORS.
+ *
+ *
+ */
+
 interface ApiService {
     @FormUrlEncoded
     @Headers(
@@ -26,7 +33,7 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerLineas(
-        @Field("accion") accion: String // Ejemplo: "RecuperarLineas"
+        @Field("accion") accion: String
     ): Call<LineasResponse>
 
     @FormUrlEncoded
@@ -36,7 +43,7 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerCalles(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarCalles"
+        @Field("accion") accion: String,
         @Field("codLinea") codigoLinea: String
     ): Call<CallesResponse>
 
@@ -47,7 +54,7 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerIntersecciones(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarIntersecciones"
+        @Field("accion") accion: String,
         @Field("codLinea") codigoLinea: String,
         @Field("codCalle") codigoCalle: String
     ): Call<InterseccionesResponse>
@@ -59,7 +66,7 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerDestinos(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarDestinos"
+        @Field("accion") accion: String,
         @Field("codLinea") codigoLinea: String,
         @Field("codCalle") codigoCalle: String,
         @Field("codInterseccion") codigoInterseccion: String
