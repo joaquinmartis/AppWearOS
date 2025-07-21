@@ -95,27 +95,8 @@ class SeleccionColectivoViewModel : ViewModel() {
 
     fun seleccionarDestino(destino: Destino) {
         destinoSeleccionado = destino
-        //cargarArribos()
     }
 
-    /*fun cargarArribos() {
-        _uiState.value = SeleccionUiState.Loading
-        // TODO: Completar con los parámetros correctos para obtener arribos
-        val managerArribos = ArribosManager()
-        managerArribos.setListener(object : ArribosManager.Listener {
-            override fun onArribosActualizados(arribos: List<Arribo>) {
-                _uiState.value = SeleccionUiState.Arribos(arribos)
-            }
-            override fun onError(error: String) {
-                _uiState.value = SeleccionUiState.Error(error)
-            }
-            override fun onLoading() {
-                _uiState.value = SeleccionUiState.Loading
-            }
-        })
-
-        managerArribos.cargarArribos(lineaSeleccionada!!.codigo,destinoSeleccionado!!.identificador)
-    }*/
 
     fun reiniciar() {
         lineaSeleccionada = null
