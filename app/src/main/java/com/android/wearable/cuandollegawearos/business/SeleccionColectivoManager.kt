@@ -1,5 +1,6 @@
 package com.android.wearable.cuandollegawearos.business
 
+import android.util.Log
 import com.android.wearable.cuandollegawearos.network.*
 
 class SeleccionColectivoManager {
@@ -9,9 +10,11 @@ class SeleccionColectivoManager {
     }
 
     fun obtenerLineas(callback: Callback<List<LineaColectivo>>) {
-        RetrofitClient.apiService.obtenerLineas("ACCION_LINEAS").enqueue(object : retrofit2.Callback<LineasResponse> {
+        RetrofitClient.apiService.obtenerLineas(EnumAcciones.ACCION_LINEAS.nombreAccion).enqueue(object : retrofit2.Callback<LineasResponse> {
             override fun onResponse(call: retrofit2.Call<LineasResponse>, response: retrofit2.Response<LineasResponse>) {
-                if (response.isSuccessful) {
+
+                if (response.isSuccessful && (response.body()?.lineas?.isEmpty()==false)) {
+
                     callback.onSuccess(response.body()?.lineas ?: emptyList())
                 } else {
                     callback.onError("Error al obtener líneas")
@@ -24,7 +27,7 @@ class SeleccionColectivoManager {
     }
 
     fun obtenerCalles(codigoLinea: String, callback: Callback<List<Calle>>) {
-        RetrofitClient.apiService.obtenerCalles("ACCION_CALLES", codigoLinea).enqueue(object : retrofit2.Callback<CallesResponse> {
+        RetrofitClient.apiService.obtenerCalles(EnumAcciones.ACCION_CALLES.nombreAccion, codigoLinea).enqueue(object : retrofit2.Callback<CallesResponse> {
             override fun onResponse(call: retrofit2.Call<CallesResponse>, response: retrofit2.Response<CallesResponse>) {
                 if (response.isSuccessful) {
                     callback.onSuccess(response.body()?.calles ?: emptyList())
@@ -39,7 +42,7 @@ class SeleccionColectivoManager {
     }
 
     fun obtenerIntersecciones(codigoLinea: String, codigoCalle: String, callback: Callback<List<Interseccion>>) {
-        RetrofitClient.apiService.obtenerIntersecciones("ACCION_INTERSECCIONES", codigoLinea, codigoCalle).enqueue(object : retrofit2.Callback<InterseccionesResponse> {
+        RetrofitClient.apiService.obtenerIntersecciones(EnumAcciones.ACCION_INTERSECCIONES.nombreAccion, codigoLinea, codigoCalle).enqueue(object : retrofit2.Callback<InterseccionesResponse> {
             override fun onResponse(call: retrofit2.Call<InterseccionesResponse>, response: retrofit2.Response<InterseccionesResponse>) {
                 if (response.isSuccessful) {
                     callback.onSuccess(response.body()?.intersecciones ?: emptyList())
@@ -53,18 +56,19 @@ class SeleccionColectivoManager {
         })
     }
 
-    fun obtenerSubLineas(codigoLinea: String, codigoCalle: String, codigoInterseccion: String, callback: Callback<List<SubLinea>>) {
-        RetrofitClient.apiService.obtenerSubLineas("ACCION_SUBLINEAS", codigoLinea, codigoCalle, codigoInterseccion).enqueue(object : retrofit2.Callback<SubLineasResponse> {
-            override fun onResponse(call: retrofit2.Call<SubLineasResponse>, response: retrofit2.Response<SubLineasResponse>) {
+    fun obtenerDestinos(codigoLinea: String, codigoCalle: String, codigoInterseccion: String, callback: Callback<List<Destino>>) {
+        RetrofitClient.apiService.obtenerDestinos(EnumAcciones.ACCION_DESTINOS.nombreAccion, codigoLinea, codigoCalle, codigoInterseccion).enqueue(object : retrofit2.Callback<DestinosResponse> {
+            override fun onResponse(call: retrofit2.Call<DestinosResponse>, response: retrofit2.Response<DestinosResponse>) {
+                Log.d("DESTINOS_API",response.body().toString())
                 if (response.isSuccessful) {
-                    callback.onSuccess(response.body()?.sublineas ?: emptyList())
+                    callback.onSuccess(response.body()?.destinos ?: emptyList())
                 } else {
-                    callback.onError("Error al obtener sublíneas")
+                    callback.onError("Error al obtener destinos")
                 }
             }
-            override fun onFailure(call: retrofit2.Call<SubLineasResponse>, t: Throwable) {
-                callback.onError("Error de red al obtener sublíneas")
+            override fun onFailure(call: retrofit2.Call<DestinosResponse>, t: Throwable) {
+                callback.onError("Error de red al obtener destinos")
             }
         })
     }
-} 
+}

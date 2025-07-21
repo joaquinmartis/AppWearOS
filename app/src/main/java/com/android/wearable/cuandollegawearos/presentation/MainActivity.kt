@@ -29,6 +29,8 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.android.wearable.cuandollegawearos.presentation.theme.WearAppTheme
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import androidx.compose.runtime.*
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.wear.compose.navigation.*
 
 
@@ -60,13 +62,21 @@ class MainActivity : ComponentActivity() {
 
             SwipeDismissableNavHost(
                 navController = navController,
-                startDestination = "arribo_screen"
+                startDestination = "seleccion_colectivo_screen"
             ) {
-                composable("arribo_screen") {
-                    ArriboScreen()
+                composable(
+                    route = "arribo_screen/{idParada}/{codLineaParada}",
+                    arguments = listOf(
+                        navArgument("idParada") { type = NavType.StringType },
+                        navArgument("codLineaParada") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val idParada = backStackEntry.arguments?.getString("idParada") ?: ""
+                    val codLineaParada = backStackEntry.arguments?.getString("codLineaParada") ?: ""
+                    ArriboScreen(navController, idParada, codLineaParada)
                 }
                 composable("seleccion_colectivo_screen") {
-                    SeleccionColectivoScreen()
+                    SeleccionColectivoScreen(navController)
                 }
                 // Agrega más pantallas aquí si las tienes
             }

@@ -82,5 +82,5 @@ data class Destino(
 data class DestinosResponse(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,
-    @SerializedName("parada") val destino: List<Destino>?
+    @SerializedName("paradas") val destinos: List<Destino>?
 )

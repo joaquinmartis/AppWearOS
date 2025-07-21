@@ -20,7 +20,7 @@ class ArribosManager {
         this.listener = listener
     }
 
-    fun cargarArribos(idParada: String = "P4002", codLineaParada: String = "121") {
+    fun cargarArribos(idParada: String, codLineaParada: String) {
         listener?.onLoading()
         val call = RetrofitClient.apiService.sendPost(
             accion = "RecuperarProximosArribosW",

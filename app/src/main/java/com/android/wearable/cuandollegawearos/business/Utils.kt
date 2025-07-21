@@ -9,6 +9,7 @@ class Utils {
     /***
      * Convierte un String de fecha y hora a un LocalDateTime y lo compara con la hora local actual.
      *  Esta funcion soporta solo intervalos de tiempo pequeños, con intervalos grandes(un mes) podria tener problemas
+     * TODO: Tomar la hora actual desde internet y no desde el dispositivo.
      *   @param fechaYHora El String que contiene la fecha y hora a parsear.
      *
      *   @return Enumerado(EnumPrecision) con la precision

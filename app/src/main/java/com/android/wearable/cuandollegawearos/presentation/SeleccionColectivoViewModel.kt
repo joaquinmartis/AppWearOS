@@ -13,8 +13,8 @@ sealed class SeleccionUiState {
     data class Lineas(val lineas: List<LineaColectivo>) : SeleccionUiState()
     data class Calles(val calles: List<Calle>) : SeleccionUiState()
     data class Intersecciones(val intersecciones: List<Interseccion>) : SeleccionUiState()
-    data class SubLineas(val sublineas: List<SubLinea>) : SeleccionUiState()
-    data class Arribos(val arribos: List<Arribo>) : SeleccionUiState()
+    data class Destinos(val destinos: List<Destino>) : SeleccionUiState()
+    //data class Arribos(val arribos: List<Arribo>) : SeleccionUiState()
     data class Error(val message: String) : SeleccionUiState()
     object Empty : SeleccionUiState()
 }
@@ -26,7 +26,7 @@ class SeleccionColectivoViewModel : ViewModel() {
     var lineaSeleccionada: LineaColectivo? = null
     var calleSeleccionada: Calle? = null
     var interseccionSeleccionada: Interseccion? = null
-    var subLineaSeleccionada: SubLinea? = null
+    var destinoSeleccionado: Destino? = null
 
     private val manager = SeleccionColectivoManager()
 
@@ -78,14 +78,14 @@ class SeleccionColectivoViewModel : ViewModel() {
 
     fun seleccionarInterseccion(interseccion: Interseccion) {
         interseccionSeleccionada = interseccion
-        cargarSubLineas(lineaSeleccionada!!, calleSeleccionada!!, interseccion)
+        cargarDestinos(lineaSeleccionada!!, calleSeleccionada!!, interseccion)
     }
 
-    fun cargarSubLineas(linea: LineaColectivo, calle: Calle, interseccion: Interseccion) {
+    fun cargarDestinos(linea: LineaColectivo, calle: Calle, interseccion: Interseccion) {
         _uiState.value = SeleccionUiState.Loading
-        manager.obtenerSubLineas(linea.codigo, calle.codigo, interseccion.codigo, object : SeleccionColectivoManager.Callback<List<SubLinea>> {
-            override fun onSuccess(data: List<SubLinea>) {
-                _uiState.value = SeleccionUiState.SubLineas(data)
+        manager.obtenerDestinos(linea.codigo, calle.codigo, interseccion.codigo, object : SeleccionColectivoManager.Callback<List<Destino>> {
+            override fun onSuccess(data: List<Destino>) {
+                _uiState.value = SeleccionUiState.Destinos(data)
             }
             override fun onError(error: String) {
                 _uiState.value = SeleccionUiState.Error(error)
@@ -93,12 +93,12 @@ class SeleccionColectivoViewModel : ViewModel() {
         })
     }
 
-    fun seleccionarSubLinea(subLinea: SubLinea) {
-        subLineaSeleccionada = subLinea
-        cargarArribos()
+    fun seleccionarDestino(destino: Destino) {
+        destinoSeleccionado = destino
+        //cargarArribos()
     }
 
-    fun cargarArribos() {
+    /*fun cargarArribos() {
         _uiState.value = SeleccionUiState.Loading
         // TODO: Completar con los parámetros correctos para obtener arribos
         val managerArribos = ArribosManager()
@@ -113,15 +113,15 @@ class SeleccionColectivoViewModel : ViewModel() {
                 _uiState.value = SeleccionUiState.Loading
             }
         })
-        // TODO: Cambiar por los parámetros correctos
-        managerArribos.cargarArribos()
-    }
+
+        managerArribos.cargarArribos(lineaSeleccionada!!.codigo,destinoSeleccionado!!.identificador)
+    }*/
 
     fun reiniciar() {
         lineaSeleccionada = null
         calleSeleccionada = null
         interseccionSeleccionada = null
-        subLineaSeleccionada = null
+        destinoSeleccionado = null
         _uiState.value = SeleccionUiState.Empty
     }
-} 
+}

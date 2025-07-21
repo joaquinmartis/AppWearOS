@@ -1,8 +1,7 @@
 package com.android.wearable.cuandollegawearos.presentation
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.ScalingLazyColumn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,9 +13,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ScreenScaffold
+import androidx.navigation.NavHostController
 
 @Composable
-fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel()) {
+fun SeleccionColectivoScreen(
+    navController: NavHostController,
+    viewModel: SeleccionColectivoViewModel = viewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     AppScaffold {
@@ -64,7 +67,7 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                             val calle = calles[idx]
                             Chip(
                                 onClick = { viewModel.seleccionarCalle(calle) },
-                                label = { Text(calle.nombre) },
+                                label = { Text(calle.descripcion) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -78,65 +81,27 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                             val inter = intersecciones[idx]
                             Chip(
                                 onClick = { viewModel.seleccionarInterseccion(inter) },
-                                label = { Text(inter.nombre) },
+                                label = { Text(inter.descripcion) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
-                    is SeleccionUiState.SubLineas -> {
-                        val sublineas = (uiState as SeleccionUiState.SubLineas).sublineas
+                    is SeleccionUiState.Destinos -> {
+                        val destinos = (uiState as SeleccionUiState.Destinos).destinos
                         item {
-                            Text("Elige la dirección/sub-línea", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("Elige el destino", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
-                        items(sublineas.size) { idx ->
-                            val sub = sublineas[idx]
+                        items(destinos.size) { idx ->
+                            val destino = destinos[idx]
                             Chip(
-                                onClick = { viewModel.seleccionarSubLinea(sub) },
-                                label = { Text(sub.nombre) },
+                                onClick = {
+                                    viewModel.seleccionarDestino(destino)
+                                    // Navegar a ArriboScreen pasando los parámetros seleccionados
+                                    navController.navigate("arribo_screen/${viewModel.destinoSeleccionado?.identificador}/${viewModel.lineaSeleccionada?.codigo}")
+                                },
+                                label = { Text(destino.descripcion) },
                                 modifier = Modifier.fillMaxWidth()
                             )
-                        }
-                    }
-                    is SeleccionUiState.Arribos -> {
-                        val arribos = (uiState as SeleccionUiState.Arribos).arribos
-                        item {
-                            Text("Próximos arribos", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        }
-                        if (arribos.isEmpty()) {
-                            item {
-                                Text("Sin arribos disponibles", color = Color.Gray)
-                            }
-                        } else {
-                            items(arribos.size) { idx ->
-                                val arribo = arribos[idx]
-                                val colorCoche = arribo.precision.colorAsociado
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(60.dp)
-                                            .background(Color(android.graphics.Color.parseColor(colorCoche))),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("🚌", fontSize = 24.sp)
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(arribo.arribo, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(arribo.descripcionLinea + " - " + arribo.descripcionBandera, fontSize = 12.sp)
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text("Precisión: ${arribo.precision.descripcion}", fontSize = 10.sp)
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                }
-                            }
-                        }
-                        item {
-                            Button(onClick = { viewModel.reiniciar() }) {
-                                Text("Nueva búsqueda")
-                            }
                         }
                     }
                     is SeleccionUiState.Error -> {

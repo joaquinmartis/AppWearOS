@@ -32,11 +32,21 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 
 
 @Composable
-fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
+fun ArriboScreen(
+    navController: NavHostController,
+    idParada: String,
+    codLineaParada: String,
+    viewModel: ArribosViewModel = viewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(idParada, codLineaParada) {
+        viewModel.cargarArribos(idParada, codLineaParada)
+    }
 
     AppScaffold {
         val columnState = rememberResponsiveColumnState(
@@ -171,6 +181,19 @@ fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
                         },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = uiState !is ArribosUiState.Loading
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item {
+                    Chip(
+                        onClick = { navController.navigate("seleccion_colectivo_screen") },
+                        label = {
+                            Text(
+                                text = "Seleccionar colectivo",
+                                fontSize = 14.sp
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }

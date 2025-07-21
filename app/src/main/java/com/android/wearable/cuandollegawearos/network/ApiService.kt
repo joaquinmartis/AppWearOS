@@ -59,7 +59,7 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerDestinos(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarSubLineas"
+        @Field("accion") accion: String, // Ejemplo: "RecuperarDestinos"
         @Field("codLinea") codigoLinea: String,
         @Field("codCalle") codigoCalle: String,
         @Field("codInterseccion") codigoInterseccion: String
