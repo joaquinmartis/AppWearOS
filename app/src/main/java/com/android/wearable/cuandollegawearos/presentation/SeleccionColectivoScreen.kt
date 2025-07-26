@@ -14,7 +14,7 @@ import androidx.wear.compose.material.*
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import androidx.navigation.NavHostController
-
+import com.android.wearable.cuandollegawearos.business.SeleccionRepository
 
 /**
  * SeleccionColectivoScreen es una funcion que al igual que ArriboScreen controla la UI. Tiene mucha mas logica, pues maneja listas
@@ -117,8 +117,7 @@ fun SeleccionColectivoScreen(
                             Chip(
                                 onClick = {
                                     viewModel.seleccionarDestino(destino)
-                                    // Navegar a ArriboScreen pasando los parámetros seleccionados
-                                    navController.navigate("arribo_screen/${viewModel.destinoSeleccionado?.identificador}/${viewModel.lineaSeleccionada?.codigo}")
+                                    navController.navigate("arribo_screen")
                                 },
                                 label = { Text(destino.descripcion) },
                                 modifier = Modifier.fillMaxWidth()

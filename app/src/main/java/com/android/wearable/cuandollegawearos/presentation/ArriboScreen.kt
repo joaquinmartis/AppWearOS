@@ -43,14 +43,12 @@ import androidx.navigation.NavHostController
 @Composable
 fun ArriboScreen(
     navController: NavHostController,
-    idParada: String,
-    codLineaParada: String,
     viewModel: ArribosViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(idParada, codLineaParada) {
-        viewModel.cargarArribos(idParada, codLineaParada)
+    LaunchedEffect(Unit) {
+        viewModel.cargarArribos()
     }
 
     AppScaffold {
@@ -177,7 +175,7 @@ fun ArriboScreen(
                 item { Spacer(modifier = Modifier.height(16.dp)) }
                 item {
                     Chip(
-                        onClick = { viewModel.cargarArribos() },
+                        onClick = { viewModel.actualizarArribos() },
                         label = {
                             Text(
                                 text = "Actualizar",

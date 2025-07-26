@@ -56,16 +56,8 @@ class MainActivity : ComponentActivity() {
                 navController = navController,
                 startDestination = "seleccion_colectivo_screen"
             ) {
-                composable(
-                    route = "arribo_screen/{idParada}/{codLineaParada}",
-                    arguments = listOf(
-                        navArgument("idParada") { type = NavType.StringType },
-                        navArgument("codLineaParada") { type = NavType.StringType }
-                    )
-                ) { backStackEntry ->
-                    val idParada = backStackEntry.arguments?.getString("idParada") ?: ""
-                    val codLineaParada = backStackEntry.arguments?.getString("codLineaParada") ?: ""
-                    ArriboScreen(navController, idParada, codLineaParada)
+                composable(route = "arribo_screen") {
+                    ArriboScreen(navController)
                 }
                 composable("seleccion_colectivo_screen") {
                     SeleccionColectivoScreen(navController)

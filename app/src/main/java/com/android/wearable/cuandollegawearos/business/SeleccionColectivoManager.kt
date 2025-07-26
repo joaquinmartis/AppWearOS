@@ -15,7 +15,8 @@ class SeleccionColectivoManager {
         fun onSuccess(data: T)
         fun onError(error: String)
     }
-
+    private val seleccionRepository: SeleccionRepository = SeleccionRepository
+    
     fun obtenerLineas(callback: Callback<List<LineaColectivo>>) {
         RetrofitClient.apiService.obtenerLineas(EnumAcciones.ACCION_LINEAS.nombreAccion).enqueue(object : retrofit2.Callback<LineasResponse> {
             override fun onResponse(call: retrofit2.Call<LineasResponse>, response: retrofit2.Response<LineasResponse>) {

@@ -5,6 +5,7 @@ import com.android.wearable.cuandollegawearos.network.*
 import com.android.wearable.cuandollegawearos.business.Arribo
 import com.android.wearable.cuandollegawearos.business.ArribosManager
 import com.android.wearable.cuandollegawearos.business.SeleccionColectivoManager
+import com.android.wearable.cuandollegawearos.business.SeleccionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -14,7 +15,6 @@ sealed class SeleccionUiState {
     data class Calles(val calles: List<Calle>) : SeleccionUiState()
     data class Intersecciones(val intersecciones: List<Interseccion>) : SeleccionUiState()
     data class Destinos(val destinos: List<Destino>) : SeleccionUiState()
-    //data class Arribos(val arribos: List<Arribo>) : SeleccionUiState()
     data class Error(val message: String) : SeleccionUiState()
     object Empty : SeleccionUiState()
 }
@@ -28,12 +28,9 @@ class SeleccionColectivoViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SeleccionUiState>(SeleccionUiState.Empty)
     val uiState: StateFlow<SeleccionUiState> = _uiState
 
-    var lineaSeleccionada: LineaColectivo? = null
-    var calleSeleccionada: Calle? = null
-    var interseccionSeleccionada: Interseccion? = null
-    var destinoSeleccionado: Destino? = null
 
     private val manager = SeleccionColectivoManager()
+    private val seleccionRepository: SeleccionRepository = SeleccionRepository
 
     fun cargarLineas() {
         _uiState.value = SeleccionUiState.Loading
@@ -48,7 +45,9 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarLinea(linea: LineaColectivo) {
-        lineaSeleccionada = linea
+
+        seleccionRepository.setLinea(linea)
+
         cargarCalles(linea)
     }
 
@@ -65,8 +64,8 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarCalle(calle: Calle) {
-        calleSeleccionada = calle
-        cargarIntersecciones(lineaSeleccionada!!, calle)
+        seleccionRepository.setCalle(calle)
+        cargarIntersecciones(seleccionRepository.getLinea()!!, calle)
     }
 
     fun cargarIntersecciones(linea: LineaColectivo, calle: Calle) {
@@ -82,8 +81,8 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarInterseccion(interseccion: Interseccion) {
-        interseccionSeleccionada = interseccion
-        cargarDestinos(lineaSeleccionada!!, calleSeleccionada!!, interseccion)
+        seleccionRepository.setInterseccion(interseccion)
+        cargarDestinos(seleccionRepository.getLinea()!!, seleccionRepository.getCalle()!!, interseccion)
     }
 
     fun cargarDestinos(linea: LineaColectivo, calle: Calle, interseccion: Interseccion) {
@@ -99,15 +98,15 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarDestino(destino: Destino) {
-        destinoSeleccionado = destino
+        seleccionRepository.setDestino(destino)
     }
 
 
     fun reiniciar() {
-        lineaSeleccionada = null
-        calleSeleccionada = null
-        interseccionSeleccionada = null
-        destinoSeleccionado = null
+        seleccionRepository.setLinea(null)
+        seleccionRepository.setCalle(null)
+        seleccionRepository.setInterseccion(null)
+        seleccionRepository.setDestino(null)
         _uiState.value = SeleccionUiState.Empty
     }
 }

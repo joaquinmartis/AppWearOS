@@ -12,5 +12,6 @@ enum class EnumAcciones (val nombreAccion: String) {
     ACCION_CALLES("RecuperarCallesPrincipalPorLinea"),
     ACCION_INTERSECCIONES("RecuperarInterseccionPorLineaYCalle"),
     ACCION_DESTINOS("RecuperarParadasConBanderaPorLineaCalleEInterseccion"),
+    ACCION_ARRIBOS("RecuperarProximosArribosW"),
     ERROR("ERROR");
 }

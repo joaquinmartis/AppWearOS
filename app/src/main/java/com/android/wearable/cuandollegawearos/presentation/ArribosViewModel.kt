@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.wearable.cuandollegawearos.business.Arribo
 import com.android.wearable.cuandollegawearos.business.ArribosManager
+import com.android.wearable.cuandollegawearos.business.SeleccionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,11 +26,14 @@ class ArribosViewModel : ViewModel(), ArribosManager.Listener {
 
     init {
         manager.setListener(this)
-        cargarArribos()
     }
 
-    fun cargarArribos(idParada: String = "P4002", codLineaParada: String = "121") {
-        manager.cargarArribos(idParada, codLineaParada)
+    fun cargarArribos() {
+        manager.cargarArribos()
+    }
+
+    fun actualizarArribos() {
+        manager.actualizarArribos()
     }
 
     override fun onArribosActualizados(arribos: List<Arribo>) {
@@ -43,4 +47,4 @@ class ArribosViewModel : ViewModel(), ArribosManager.Listener {
     override fun onLoading() {
         _uiState.value = ArribosUiState.Loading
     }
-}
+} 
