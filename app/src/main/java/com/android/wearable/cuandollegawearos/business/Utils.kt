@@ -1,5 +1,6 @@
 package com.android.wearable.cuandollegawearos.business
 import android.util.Log
+import com.android.wearable.cuandollegawearos.network.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -48,6 +49,7 @@ class Utils {
             }
             return precision
         }
+
     }
 
 }

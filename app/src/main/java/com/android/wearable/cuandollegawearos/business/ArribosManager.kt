@@ -1,8 +1,7 @@
 package com.android.wearable.cuandollegawearos.business
 
 import android.util.Log
-import com.android.wearable.cuandollegawearos.network.PostResponse
-import com.android.wearable.cuandollegawearos.network.RetrofitClient
+import com.android.wearable.cuandollegawearos.network.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -63,28 +62,32 @@ class ArribosManager (
     private fun cargarArribosAPI(){
         listener?.onLoading()
         timerJob?.cancel()
-
-
         val call = RetrofitClient.apiService.sendPost(
             accion = EnumAcciones.ACCION_ARRIBOS.nombreAccion,
             identificadorParada = paradaActual,
             codigoLineaParada = lineaActual
         )
-        call.enqueue(object : Callback<PostResponse> {
-            override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
+        call.enqueue(object : Callback<ArribosResponseAPI> {
+            override fun onResponse(call: Call<ArribosResponseAPI>, response: Response<ArribosResponseAPI>) {
                 if (response.isSuccessful) {
-                    val postResponse = response.body()
-                    if (postResponse != null && postResponse.codigoEstado == 0) {
-                        val arribos = postResponse.arribos?.map { Arribo.fromApi(it) } ?: emptyList()
-                        arribosOriginales = arribos
-                        lastUpdate = System.currentTimeMillis()
-                        notificarArribosActualizados()
-                        iniciarTemporizador()
-                        Log.d("ARRIBO_SCREEN", "Arribos actualizados: ${arribos.size}")
-                    } else {
-                        val errorMsg = postResponse?.mensajeEstado ?: "Error desconocido"
-                        listener?.onError(errorMsg)
-                        Log.e("ARRIBO_SCREEN", "Error en respuesta: $errorMsg")
+                    val body = response.body()
+                    if (body == null) {
+                        listener?.onError("Respuesta vacía del servidor")
+                        return
+                    }
+                    try {
+                        val arribos = Mappers.parserAPItoModels(body) // lanza ApiResponseException si codigoEstado != 0
+
+                        if (arribos.isEmpty()) {
+                            listener?.onError("No hay líneas disponibles")
+                            return
+                        }
+
+                        listener?.onArribosActualizados(arribos)
+                    } catch (e: ApiResponseException) {
+                        listener?.onError("Error ${e.code}: ${e.apiMessage}")
+                    } catch (e: Exception) {
+                        listener?.onError("Error al procesar la respuesta")
                     }
                 } else {
                     val errorMsg = "Error HTTP: ${response.code()}"
@@ -93,7 +96,7 @@ class ArribosManager (
                 }
             }
 
-            override fun onFailure(call: Call<PostResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ArribosResponseAPI>, t: Throwable) {
                 val errorMsg = "Error de conexión"
                 listener?.onError(errorMsg)
                 Log.e("ARRIBO_SCREEN", "Error de conexión: ${t.message}")

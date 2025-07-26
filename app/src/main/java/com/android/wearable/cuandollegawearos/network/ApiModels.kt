@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
  *
  *
  */
-data class PostResponse(
+data class ArribosResponseAPI(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,
     @SerializedName("arribos") val arribos: List<ArriboAPI>?
@@ -34,13 +34,13 @@ data class ArriboAPI(
     @SerializedName("CodigoLineaParada") val codigoLineaParada: String
 )
 
-data class LineasResponse(
+data class LineasResponseAPI(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,
-    @SerializedName("lineas") val lineas: List<LineaColectivo>?
+    @SerializedName("lineas") val lineas: List<LineaColectivoAPI>?
 )
 
-data class LineaColectivo(
+data class LineaColectivoAPI(
     @SerializedName("CodigoLineaParada") val codigo: String,
     @SerializedName("Descripcion") val nombre: String,
     @SerializedName("CodigoEntidad") val codigoEntidad: String,
@@ -48,29 +48,29 @@ data class LineaColectivo(
 )
 
 
-data class CallesResponse(
+data class CallesResponseAPI(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,
-    @SerializedName("calles") val calles: List<Calle>?
+    @SerializedName("calles") val calles: List<CalleAPI>?
 )
 
-data class Calle(
+data class CalleAPI(
     @SerializedName("Codigo") val codigo: String,
     @SerializedName("Descripcion") val descripcion: String
 )
 
-data class InterseccionesResponse(
+data class InterseccionesResponseAPI(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,
-    @SerializedName("calles") val intersecciones: List<Interseccion>?
+    @SerializedName("calles") val intersecciones: List<InterseccionAPI>?
 )
 
-data class Interseccion(
+data class InterseccionAPI(
     @SerializedName("Codigo") val codigo: String,
     @SerializedName("Descripcion") val descripcion: String
 )
 
-data class Destino(
+data class DestinoAPI(
     @SerializedName("Codigo") val codigo: String,
     @SerializedName("Identificador") val identificador: String,
     @SerializedName("Descripcion") val descripcion: String,
@@ -80,8 +80,8 @@ data class Destino(
     @SerializedName("LongitudParada") val longitudParada: String
 )
 
-data class DestinosResponse(
+data class DestinosResponseAPI(
     @SerializedName("CodigoEstado") val codigoEstado: Int,
     @SerializedName("MensajeEstado") val mensajeEstado: String,
-    @SerializedName("paradas") val destinos: List<Destino>?
+    @SerializedName("paradas") val destinos: List<DestinoAPI>?
 )

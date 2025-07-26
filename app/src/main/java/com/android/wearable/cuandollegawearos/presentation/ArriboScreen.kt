@@ -22,15 +22,6 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
-import com.android.wearable.cuandollegawearos.network.*
-import com.android.wearable.cuandollegawearos.business.*
-import android.util.Log
-import com.android.wearable.cuandollegawearos.business.Arribo
-import com.android.wearable.cuandollegawearos.network.PostResponse
-import com.android.wearable.cuandollegawearos.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 

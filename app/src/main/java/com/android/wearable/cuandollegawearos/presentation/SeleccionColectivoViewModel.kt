@@ -1,9 +1,11 @@
 package com.android.wearable.cuandollegawearos.presentation
 
 import androidx.lifecycle.ViewModel
-import com.android.wearable.cuandollegawearos.network.*
-import com.android.wearable.cuandollegawearos.business.Arribo
-import com.android.wearable.cuandollegawearos.business.ArribosManager
+import com.android.wearable.cuandollegawearos.business.LineaColectivo
+import com.android.wearable.cuandollegawearos.business.Calle
+import com.android.wearable.cuandollegawearos.business.Interseccion
+import com.android.wearable.cuandollegawearos.business.Destino
+
 import com.android.wearable.cuandollegawearos.business.SeleccionColectivoManager
 import com.android.wearable.cuandollegawearos.business.SeleccionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
