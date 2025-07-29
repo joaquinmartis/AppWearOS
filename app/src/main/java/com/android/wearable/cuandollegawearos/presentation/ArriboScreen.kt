@@ -54,7 +54,7 @@ fun ArriboScreen(
             ScalingLazyColumn(
                 columnState = columnState
             ) {
-                item {
+                /*item {
                     Text(
                         text = "Próximos Colectivos",
                         textAlign = TextAlign.Center,
@@ -62,21 +62,28 @@ fun ArriboScreen(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
-                }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                }*/
+                //item { Spacer(modifier = Modifier.height(16.dp)) }
 
                 when (uiState) {
                     is ArribosUiState.Loading -> {
                         item {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Cargando...",
-                                color = MaterialTheme.colors.onBackground,
-                                fontSize = 14.sp
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Cargando...",
+                                    color = MaterialTheme.colors.onBackground,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
                     is ArribosUiState.Error -> {
@@ -109,7 +116,7 @@ fun ArriboScreen(
                                 )
                             }
                         } else {
-                            items(arribos.size) { idx ->
+                            /*items(arribos.size) { idx ->
                                 val arribo = arribos[idx]
                                 val colorCoche = arribo.precision.colorAsociado
                                 Column(
@@ -158,6 +165,47 @@ fun ArriboScreen(
                                     }*/
                                     Spacer(modifier = Modifier.height(12.dp))
                                 }
+                             */
+                            items(arribos.size) { idx ->
+                                val arribo = arribos[idx]
+                                val colorCoche = arribo.color
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = arribo.linea,
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = arribo.tiempo, // Ej: "4 min"
+                                        color = colorCoche,
+                                        fontSize = 32.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = arribo.sentido,
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Precisión: ${arribo.precision}",
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 10.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+
                             }
                         }
                     }

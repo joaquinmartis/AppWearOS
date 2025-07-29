@@ -91,7 +91,7 @@ class SeleccionColectivoViewModel : ViewModel() {
         _uiState.value = SeleccionUiState.Loading
         manager.obtenerDestinos(linea.codigo, calle.codigo, interseccion.codigo, object : SeleccionColectivoManager.Callback<List<Destino>> {
             override fun onSuccess(data: List<Destino>) {
-                _uiState.value = SeleccionUiState.Destinos(data)
+                _uiState.value = SeleccionUiState.Destinos(data)//val regex = Regex("""X\s+([A-Z])\b""")
             }
             override fun onError(error: String) {
                 _uiState.value = SeleccionUiState.Error(error)
@@ -111,4 +111,6 @@ class SeleccionColectivoViewModel : ViewModel() {
         seleccionRepository.setDestino(null)
         _uiState.value = SeleccionUiState.Empty
     }
+
+
 }

@@ -77,7 +77,10 @@ class ArribosManager (
                     }
                     try {
                         val arribos = Mappers.parserAPItoModels(body) // lanza ApiResponseException si codigoEstado != 0
-
+                        arribosOriginales = arribos
+                        lastUpdate = System.currentTimeMillis()
+                        notificarArribosActualizados()
+                        iniciarTemporizador()
                         if (arribos.isEmpty()) {
                             listener?.onError("No hay líneas disponibles")
                             return

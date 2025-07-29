@@ -60,9 +60,22 @@ fun SeleccionColectivoScreen(
                     }
                     is SeleccionUiState.Loading -> {
                         item {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Cargando...", fontSize = 14.sp)
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Cargando...",
+                                    color = MaterialTheme.colors.onBackground,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
                     is SeleccionUiState.Lineas -> {
@@ -119,7 +132,7 @@ fun SeleccionColectivoScreen(
                                     viewModel.seleccionarDestino(destino)
                                     navController.navigate("arribo_screen")
                                 },
-                                label = { Text(destino.descripcion) },
+                                label = { Text(destino.abreviaturaAmpliadaBandera) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
