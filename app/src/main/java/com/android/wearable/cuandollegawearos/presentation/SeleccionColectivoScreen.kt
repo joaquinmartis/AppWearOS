@@ -2,6 +2,8 @@ package com.android.wearable.cuandollegawearos.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -9,12 +11,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import androidx.navigation.NavHostController
 import com.android.wearable.cuandollegawearos.business.SeleccionRepository
+import com.android.wearable.cuandollegawearos.presentation.FuzzySearch.Companion.fuzzySearchByLinea
 
 /**
  * SeleccionColectivoScreen es una funcion que al igual que ArriboScreen controla la UI. Tiene mucha mas logica, pues maneja listas
@@ -29,7 +33,8 @@ fun SeleccionColectivoScreen(
     viewModel: SeleccionColectivoViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
+    // Estado local para el texto de búsqueda de líneas
+    var searchText by remember { mutableStateOf("") }
     AppScaffold {
         val columnState = rememberScalingLazyListState()
         ScreenScaffold(scrollState = columnState) {
@@ -79,16 +84,47 @@ fun SeleccionColectivoScreen(
                         }
                     }
                     is SeleccionUiState.Lineas -> {
-                        val lineas = (uiState as SeleccionUiState.Lineas).lineas
-                        item {
-                            Text("Elige la línea de colectivo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        val allLineas = (uiState as SeleccionUiState.Lineas).lineas
+                        // Aplica filtro fuzzy cuando el usuario escribe algo
+                        val lineasFiltradas = if (searchText.isBlank()) {
+                            allLineas
+                        } else {
+                            allLineas.fuzzySearchByLinea(searchText, threshold = 80)
                         }
-                        items(lineas.size) { idx ->
-                            val linea = lineas[idx]
+
+                        // 1) Campo de búsqueda
+                        item {
+                            OutlinedTextField(
+                                value = searchText,
+                                onValueChange = { searchText = it },
+                                label = { Text("Buscar línea") },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+
+                        // 2) Título
+                        item {
+                            Text(
+                                text = "Elige la línea de colectivo",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+
+                        // 3) Lista filtrada
+                        items(lineasFiltradas.size) { idx ->
+                            val linea = lineasFiltradas[idx]
                             Chip(
                                 onClick = { viewModel.seleccionarLinea(linea) },
                                 label = { Text(linea.nombre) },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
                     }

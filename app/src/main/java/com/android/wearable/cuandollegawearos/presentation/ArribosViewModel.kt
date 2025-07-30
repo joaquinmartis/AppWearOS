@@ -9,8 +9,12 @@ import com.android.wearable.cuandollegawearos.business.LineaColectivo
 import com.android.wearable.cuandollegawearos.business.SeleccionRepository
 import com.android.wearable.cuandollegawearos.network.LineaColectivoAPI
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.xdrop.fuzzywuzzy.FuzzySearch
 
 /**
  * ArribosViewModel es una clase que es la controladora de la UI, envia mensajes hacia y desde el modelo.
@@ -26,6 +30,8 @@ class ArribosViewModel : ViewModel(), ArribosManager.Listener {
     private val manager = ArribosManager()
     private val _uiState = MutableStateFlow<ArribosUiState>(ArribosUiState.Loading)
     val uiState: StateFlow<ArribosUiState> = _uiState
+
+
 
     init {
         manager.setListener(this)
@@ -72,6 +78,7 @@ class ArribosViewModel : ViewModel(), ArribosManager.Listener {
     fun esteticaArribos(arribos: List<Arribo>): List<ArriboUI> {
         return arribos.map { it.toDomain() }
     }
+
 
 
 

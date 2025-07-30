@@ -74,13 +74,15 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.material3.android)
     val composeBom = platform(libs.androidx.compose.bom)
 
     // General compose dependencies
     implementation(composeBom)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.splashscreen)
-
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.30.1")
+    implementation("me.xdrop:fuzzywuzzy:1.4.0")
     // Compose for Wear OS Dependencies
     // NOTE: DO NOT INCLUDE a dependency on androidx.compose.material:material.
     // androidx.wear.compose:compose-material is designed as a replacement not an addition to

@@ -24,6 +24,8 @@ import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 /**
  * ArriboScreen es una clase de la UI que se encarga de maquetar y mostrar todo lo que se va a ver en la pantalla. Se comunica
@@ -42,6 +44,10 @@ fun ArriboScreen(
         viewModel.cargarArribos()
     }
 
+    // Booleano para el indicador de refresco
+    val isRefreshing = uiState is ArribosUiState.Loading
+    val swipeState = rememberSwipeRefreshState(isRefreshing)
+
     AppScaffold {
         val columnState = rememberResponsiveColumnState(
             contentPadding = ScalingLazyColumnDefaults.padding(
@@ -49,21 +55,15 @@ fun ArriboScreen(
                 last = ScalingLazyColumnDefaults.ItemType.Chip
             )
         )
-
+        SwipeRefresh(
+            state     = swipeState,
+            onRefresh = { viewModel.actualizarArribos() },
+            modifier  = Modifier.fillMaxSize()
+        ) {
         ScreenScaffold(scrollState = columnState) {
             ScalingLazyColumn(
                 columnState = columnState
             ) {
-                /*item {
-                    Text(
-                        text = "Próximos Colectivos",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colors.onBackground,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }*/
-                //item { Spacer(modifier = Modifier.height(16.dp)) }
 
                 when (uiState) {
                     is ArribosUiState.Loading -> {
@@ -116,56 +116,6 @@ fun ArriboScreen(
                                 )
                             }
                         } else {
-                            /*items(arribos.size) { idx ->
-                                val arribo = arribos[idx]
-                                val colorCoche = arribo.precision.colorAsociado
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(60.dp)
-                                            .clip(CircleShape)
-                                            .background(if (idx == 0) colorCoche else MaterialTheme.colors.primary),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "🚌",
-                                            fontSize = 24.sp
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = arribo.arribo,
-                                        color = MaterialTheme.colors.primary,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = arribo.descripcionLinea + " - " + arribo.descripcionBandera,
-                                        color = MaterialTheme.colors.onBackground,
-                                        fontSize = 12.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = "Precisión: ${arribo.precision.descripcion}",
-                                        color = MaterialTheme.colors.onBackground,
-                                        fontSize = 10.sp
-                                    )
-                                    /*if (arribo.desvioEnMinutos() != null) {
-                                        Text(
-                                            text = "Desvío: ${arribo.desvioEnMinutos()} min",
-                                            color = MaterialTheme.colors.onBackground,
-                                            fontSize = 10.sp
-                                        )
-                                    }*/
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                }
-                             */
                             items(arribos.size) { idx ->
                                 val arribo = arribos[idx]
                                 val colorCoche = arribo.color
@@ -239,6 +189,7 @@ fun ArriboScreen(
                     )
                 }
             }
+        }
         }
     }
 }
