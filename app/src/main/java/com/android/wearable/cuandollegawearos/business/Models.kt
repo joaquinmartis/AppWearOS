@@ -31,11 +31,13 @@ data class LineaColectivo(
 )
 data class Calle(
     val codigo: String,
-    val descripcion: String
+    val nombreCalle: String,
+    val nombreCiudad: String
 )
 data class Interseccion(
     val codigo: String,
-    val descripcion: String
+    val nombreInterseccion: String,
+    val nombreCiudad: String
 )
 data class Destino(
     val descripcion: String,

@@ -1,7 +1,14 @@
 package com.android.wearable.cuandollegawearos.presentation
 
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
@@ -18,7 +25,17 @@ import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import androidx.navigation.NavHostController
 import com.android.wearable.cuandollegawearos.business.SeleccionRepository
+import com.android.wearable.cuandollegawearos.presentation.FuzzySearch.Companion.buscarPorTrigramasCalles
+import com.android.wearable.cuandollegawearos.presentation.FuzzySearch.Companion.buscarPorTrigramasIntersecciones
 import com.android.wearable.cuandollegawearos.presentation.FuzzySearch.Companion.fuzzySearchByLinea
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 
 /**
  * SeleccionColectivoScreen es una funcion que al igual que ArriboScreen controla la UI. Tiene mucha mas logica, pues maneja listas
@@ -34,7 +51,11 @@ fun SeleccionColectivoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // Estado local para el texto de búsqueda de líneas
-    var searchText by remember { mutableStateOf("") }
+    var searchTextLineas by remember { mutableStateOf("") }
+    var searchTextCalles by remember { mutableStateOf("") }
+    var searchTextIntersecciones by remember { mutableStateOf("") }
+
+
     AppScaffold {
         val columnState = rememberScalingLazyListState()
         ScreenScaffold(scrollState = columnState) {
@@ -86,35 +107,30 @@ fun SeleccionColectivoScreen(
                     is SeleccionUiState.Lineas -> {
                         val allLineas = (uiState as SeleccionUiState.Lineas).lineas
                         // Aplica filtro fuzzy cuando el usuario escribe algo
-                        val lineasFiltradas = if (searchText.isBlank()) {
+                        val lineasFiltradas = if (searchTextLineas.isBlank()) {
                             allLineas
                         } else {
-                            allLineas.fuzzySearchByLinea(searchText, threshold = 80)
-                        }
-
-                        // 1) Campo de búsqueda
-                        item {
-                            OutlinedTextField(
-                                value = searchText,
-                                onValueChange = { searchText = it },
-                                label = { Text("Buscar línea") },
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
+                            allLineas.fuzzySearchByLinea(searchTextLineas, threshold = 80)
                         }
 
                         // 2) Título
                         item {
                             Text(
-                                text = "Elige la línea de colectivo",
+                                text = "Elige la línea",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
+
+                        item {
+                            SearchChip(
+                                searchText = searchTextLineas,
+                                onSearchTextChange = { searchTextLineas = it }
+                            )
+                        }
+
+
 
                         // 3) Lista filtrada
                         items(lineasFiltradas.size) { idx ->
@@ -127,32 +143,87 @@ fun SeleccionColectivoScreen(
                                     .padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
+
+
                     }
                     is SeleccionUiState.Calles -> {
-                        val calles = (uiState as SeleccionUiState.Calles).calles
-                        item {
-                            Text("Elige la calle", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        val allcalles = (uiState as SeleccionUiState.Calles).calles
+                        // Aplica filtro fuzzy cuando el usuario escribe algo
+                        val callesFiltradas = if (searchTextCalles.isBlank()) {
+                            allcalles
+                        } else {
+                            buscarPorTrigramasCalles(searchTextCalles,allcalles)
                         }
-                        items(calles.size) { idx ->
-                            val calle = calles[idx]
+
+                        // 2) Título
+                        item {
+                            Text(
+                                text = "Elige la calle",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+
+                        item {
+                            SearchChip(
+                                searchText = searchTextCalles,
+                                onSearchTextChange = { searchTextCalles = it }
+                            )
+                        }
+
+                        // 3) Lista filtrada
+                        items(callesFiltradas.size) { idx ->
+                            val calle = callesFiltradas[idx]
                             Chip(
                                 onClick = { viewModel.seleccionarCalle(calle) },
-                                label = { Text(calle.descripcion) },
-                                modifier = Modifier.fillMaxWidth()
+                                label = { Text(calle.nombreCalle) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
                     }
+
+
+
                     is SeleccionUiState.Intersecciones -> {
-                        val intersecciones = (uiState as SeleccionUiState.Intersecciones).intersecciones
+
+
+                        val allIntersecciones = (uiState as SeleccionUiState.Intersecciones).intersecciones
+                    // Aplica filtro fuzzy cuando el usuario escribe algo
+                        val interseccionesFiltradas = if (searchTextIntersecciones.isBlank()) {
+                            allIntersecciones
+                        } else {
+                            buscarPorTrigramasIntersecciones(searchTextIntersecciones,allIntersecciones)
+                    }
+
+                        // 1) Título
+
                         item {
-                            Text("Elige la intersección", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                text = "Elige la interseccion",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
                         }
-                        items(intersecciones.size) { idx ->
-                            val inter = intersecciones[idx]
+                        // Boton busqueda
+                        item {
+                            SearchChip(
+                                searchText = searchTextIntersecciones,
+                                onSearchTextChange = { searchTextIntersecciones = it }
+                            )
+                        }
+                        // 3) Lista filtrada
+                        items(interseccionesFiltradas.size) { idx ->
+                            val interseccion = interseccionesFiltradas[idx]
                             Chip(
-                                onClick = { viewModel.seleccionarInterseccion(inter) },
-                                label = { Text(inter.descripcion) },
-                                modifier = Modifier.fillMaxWidth()
+                                onClick = { viewModel.seleccionarInterseccion(interseccion) },
+                                label = { Text(interseccion.nombreInterseccion) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
                     }
@@ -174,16 +245,98 @@ fun SeleccionColectivoScreen(
                         }
                     }
                     is SeleccionUiState.Error -> {
-                        val msg = (uiState as SeleccionUiState.Error).message
                         item {
-                            Text("Error: $msg", color = Color.Red)
-                            Button(onClick = { viewModel.reiniciar() }) {
-                                Text("Reintentar")
+                            val msg = (uiState as SeleccionUiState.Error).message
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Error",
+                                    color = Color.Red,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = msg,
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Chip(
+                                    onClick = { viewModel.reiniciar() },
+                                    label = { Text("Reintentar") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                                    colors = ChipDefaults.primaryChipColors(
+                                        backgroundColor = Color(0xFF1C1C1E),
+                                        contentColor = Color.White
+                                    )
+                                )
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SearchChip(
+    searchText: String,
+    onSearchTextChange: (String) -> Unit,
+) {
+    // Para poder pedir foco al campo
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
+            .background(Color.Black, RoundedCornerShape(20.dp))
+            .clickable { focusRequester.requestFocus() }  // Al tocar el chip, abre el teclado
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Buscar",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            BasicTextField(
+                value = searchText,
+                onValueChange = {
+                    onSearchTextChange(it)
+                    // Si quieres buscar mientras tipeas, descomenta:
+                    // onSearchSubmit(it)
+                },
+                singleLine = true,
+                textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text,
+
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {keyboardController?.hide() }
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(focusRequester)
+            )
         }
     }
 }

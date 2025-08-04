@@ -32,7 +32,7 @@ class Mappers {
                 ret=Utils.calculaPresicion(fechaBondi)
             }catch(e: HoraAPIInvalidaException){
                 ret=EnumPrecision.ERROR
-                Log.e("ERR_HORAAPI", e.message.toString())
+                //Log.e("ERR_HORAAPI", e.message.toString())
             }
             return ret
         }
@@ -42,15 +42,23 @@ class Mappers {
             codigoEntidad = codigoEntidad
         )
 
-        fun CalleAPI.toDomain() = Calle(
-            codigo = codigo,
-            descripcion = descripcion
-        )
+        fun CalleAPI.toDomain(): Calle {
+            val (nombreCalle, nombreCiudad) = desarmar(descripcion)
+            return Calle(
+                codigo = codigo,
+                nombreCalle = nombreCalle,
+                nombreCiudad = nombreCiudad
+            )
+        }
 
-        fun InterseccionAPI.toDomain() = Interseccion(
-            codigo = codigo,
-            descripcion = descripcion
-        )
+        fun InterseccionAPI.toDomain() : Interseccion{
+            val (nombreCalle, nombreCiudad) = desarmar(descripcion)
+            return Interseccion(
+                codigo = codigo,
+                nombreInterseccion = nombreCalle,
+                nombreCiudad = nombreCiudad
+            )
+        }
 
         fun DestinoAPI.toDomain() = Destino(
             descripcion = descripcion,
@@ -106,6 +114,19 @@ class Mappers {
 
         fun parserAPItoModels(objeto: ArribosResponseAPI): List<Arribo> =
             objeto.toDomainListOrThrow()
+
+        fun desarmar(str: String) : Pair<String,String>{
+            val partes = str.split(" - ")
+            return if (partes.size >= 2) {
+                val izquierda = partes[0].trim()
+                val derecha = partes[1].trim()
+                Pair(izquierda, derecha)
+            } else {
+                Pair("","") // No tiene el formato esperado
+            }
+        }
     }
+
+
 }
 

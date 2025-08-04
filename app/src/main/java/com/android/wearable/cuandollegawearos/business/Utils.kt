@@ -36,7 +36,7 @@ class Utils {
                         fechaHoraParseada.toString() + "es un valor incorrecto" + ahora.toString() + "es la hora actual" + "la duracion es" + duracionSegundos.toString()
                     );
                 }
-                Log.d("DEBUG_DURACION", "DURACION EN SEG: "+duracionSegundos.toString()+" LA HORA PROVISTA ES "+fechaHoraParseada.toString() + " la hora actual es " + ahora.toString() )
+                //Log.d("DEBUG_DURACION", "DURACION EN SEG: "+duracionSegundos.toString()+" LA HORA PROVISTA ES "+fechaHoraParseada.toString() + " la hora actual es " + ahora.toString() )
                 if (duracionSegundos < EnumPrecision.ALTA.rango)
                     precision = EnumPrecision.ALTA
                 else
@@ -45,7 +45,7 @@ class Utils {
                     else
                         precision = EnumPrecision.BAJA
             } catch (e: DateTimeParseException) {
-                Log.e("ERR_PARSEO", e.message.toString())
+                //Log.e("ERR_PARSEO", e.message.toString())
             }
             return precision
         }

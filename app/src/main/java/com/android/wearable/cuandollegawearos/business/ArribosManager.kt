@@ -59,6 +59,8 @@ class ArribosManager (
         cargarArribos()
     }
 
+
+
     private fun cargarArribosAPI(){
         listener?.onLoading()
         timerJob?.cancel()
@@ -95,14 +97,14 @@ class ArribosManager (
                 } else {
                     val errorMsg = "Error HTTP: ${response.code()}"
                     listener?.onError(errorMsg)
-                    Log.e("ARRIBO_SCREEN", errorMsg)
+                    //Log.e("ARRIBO_SCREEN", errorMsg)
                 }
             }
 
             override fun onFailure(call: Call<ArribosResponseAPI>, t: Throwable) {
                 val errorMsg = "Error de conexión"
                 listener?.onError(errorMsg)
-                Log.e("ARRIBO_SCREEN", "Error de conexión: ${t.message}")
+                //Log.e("ARRIBO_SCREEN", "Error de conexión: ${t.message}")
             }
         })
     }

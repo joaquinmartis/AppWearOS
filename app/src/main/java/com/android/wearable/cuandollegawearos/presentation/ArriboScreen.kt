@@ -2,14 +2,8 @@
 
 package com.android.wearable.cuandollegawearos.presentation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,7 +20,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column as Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 /**
  * ArriboScreen es una clase de la UI que se encarga de maquetar y mostrar todo lo que se va a ver en la pantalla. Se comunica
  * con ArribosViewModel en forma de MVC siendo este ultimo el controlador.
@@ -44,10 +45,6 @@ fun ArriboScreen(
         viewModel.cargarArribos()
     }
 
-    // Booleano para el indicador de refresco
-    val isRefreshing = uiState is ArribosUiState.Loading
-    val swipeState = rememberSwipeRefreshState(isRefreshing)
-
     AppScaffold {
         val columnState = rememberResponsiveColumnState(
             contentPadding = ScalingLazyColumnDefaults.padding(
@@ -55,11 +52,7 @@ fun ArriboScreen(
                 last = ScalingLazyColumnDefaults.ItemType.Chip
             )
         )
-        SwipeRefresh(
-            state     = swipeState,
-            onRefresh = { viewModel.actualizarArribos() },
-            modifier  = Modifier.fillMaxSize()
-        ) {
+
         ScreenScaffold(scrollState = columnState) {
             ScalingLazyColumn(
                 columnState = columnState
@@ -89,19 +82,27 @@ fun ArriboScreen(
                     is ArribosUiState.Error -> {
                         val error = (uiState as ArribosUiState.Error).message
                         item {
-                            Text(
-                                text = "Error",
-                                color = Color.Red,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = error,
-                                color = Color.Red,
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Error",
+                                    color = Color.Red,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = error,
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                     is ArribosUiState.Success -> {
@@ -189,7 +190,7 @@ fun ArriboScreen(
                     )
                 }
             }
-        }
+
         }
     }
 }

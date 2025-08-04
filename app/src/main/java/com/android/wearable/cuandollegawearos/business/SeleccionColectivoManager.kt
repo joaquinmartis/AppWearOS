@@ -46,11 +46,13 @@ class SeleccionColectivoManager {
                         callback.onError("Error al procesar la respuesta")
                     }
                 } else {
+
                     callback.onError("Error al obtener líneas")
                 }
             }
             override fun onFailure(call: Call<LineasResponseAPI>, t: Throwable) {
                 callback.onError("Error de red al obtener líneas")
+                //Log.e("SELECTION_API", t.toString())
             }
         })
     }
@@ -121,10 +123,11 @@ class SeleccionColectivoManager {
         })
     }
 
+
     fun obtenerDestinos(codigoLinea: String, codigoCalle: String, codigoInterseccion: String, callback: Callback<List<Destino>>) {
         RetrofitClient.apiService.obtenerDestinos(EnumAcciones.ACCION_DESTINOS.nombreAccion, codigoLinea, codigoCalle, codigoInterseccion).enqueue(object : retrofit2.Callback<DestinosResponseAPI> {
             override fun onResponse(call: Call<DestinosResponseAPI>, response: Response<DestinosResponseAPI>) {
-                Log.d("DESTINOS_API",response.body().toString())
+                //Log.d("DESTINOS_API",response.body().toString())
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body == null) {
@@ -140,7 +143,7 @@ class SeleccionColectivoManager {
                         }
                         callback.onSuccess(destinos)
                     } catch (e: ApiResponseException) {
-                        callback.onError("Error ${e.code}: ${e.apiMessage}")
+                        callback.onError("Error : ${e.apiMessage}")
                     } catch (e: Exception) {
                         callback.onError("Error al procesar la respuesta")
                     }

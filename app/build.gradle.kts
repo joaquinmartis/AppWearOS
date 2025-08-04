@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.androidx.splashscreen)
     implementation("com.google.accompanist:accompanist-swiperefresh:0.30.1")
     implementation("me.xdrop:fuzzywuzzy:1.4.0")
+    implementation("androidx.compose.material3:material3:1.1.1")
     // Compose for Wear OS Dependencies
     // NOTE: DO NOT INCLUDE a dependency on androidx.compose.material:material.
     // androidx.wear.compose:compose-material is designed as a replacement not an addition to
