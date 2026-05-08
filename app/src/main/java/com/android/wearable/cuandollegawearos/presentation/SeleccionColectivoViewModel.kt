@@ -1,10 +1,13 @@
 package com.android.wearable.cuandollegawearos.presentation
 
 import androidx.lifecycle.ViewModel
-import com.android.wearable.cuandollegawearos.network.*
-import com.android.wearable.cuandollegawearos.business.Arribo
-import com.android.wearable.cuandollegawearos.business.ArribosManager
+import com.android.wearable.cuandollegawearos.business.LineaColectivo
+import com.android.wearable.cuandollegawearos.business.Calle
+import com.android.wearable.cuandollegawearos.business.Interseccion
+import com.android.wearable.cuandollegawearos.business.Destino
+
 import com.android.wearable.cuandollegawearos.business.SeleccionColectivoManager
+import com.android.wearable.cuandollegawearos.business.SeleccionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -13,22 +16,23 @@ sealed class SeleccionUiState {
     data class Lineas(val lineas: List<LineaColectivo>) : SeleccionUiState()
     data class Calles(val calles: List<Calle>) : SeleccionUiState()
     data class Intersecciones(val intersecciones: List<Interseccion>) : SeleccionUiState()
-    data class SubLineas(val sublineas: List<SubLinea>) : SeleccionUiState()
-    data class Arribos(val arribos: List<Arribo>) : SeleccionUiState()
+    data class Destinos(val destinos: List<Destino>) : SeleccionUiState()
     data class Error(val message: String) : SeleccionUiState()
     object Empty : SeleccionUiState()
 }
+
+/**
+ * SeleccionColectivoViewModel es una clase que es la controladora de la UI, envia mensajes hacia y desde el modelo.
+ */
+
 
 class SeleccionColectivoViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SeleccionUiState>(SeleccionUiState.Empty)
     val uiState: StateFlow<SeleccionUiState> = _uiState
 
-    var lineaSeleccionada: LineaColectivo? = null
-    var calleSeleccionada: Calle? = null
-    var interseccionSeleccionada: Interseccion? = null
-    var subLineaSeleccionada: SubLinea? = null
 
     private val manager = SeleccionColectivoManager()
+    private val seleccionRepository: SeleccionRepository = SeleccionRepository
 
     fun cargarLineas() {
         _uiState.value = SeleccionUiState.Loading
@@ -43,7 +47,9 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarLinea(linea: LineaColectivo) {
-        lineaSeleccionada = linea
+
+        seleccionRepository.setLinea(linea)
+
         cargarCalles(linea)
     }
 
@@ -60,8 +66,8 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarCalle(calle: Calle) {
-        calleSeleccionada = calle
-        cargarIntersecciones(lineaSeleccionada!!, calle)
+        seleccionRepository.setCalle(calle)
+        cargarIntersecciones(seleccionRepository.getLinea()!!, calle)
     }
 
     fun cargarIntersecciones(linea: LineaColectivo, calle: Calle) {
@@ -77,15 +83,15 @@ class SeleccionColectivoViewModel : ViewModel() {
     }
 
     fun seleccionarInterseccion(interseccion: Interseccion) {
-        interseccionSeleccionada = interseccion
-        cargarSubLineas(lineaSeleccionada!!, calleSeleccionada!!, interseccion)
+        seleccionRepository.setInterseccion(interseccion)
+        cargarDestinos(seleccionRepository.getLinea()!!, seleccionRepository.getCalle()!!, interseccion)
     }
 
-    fun cargarSubLineas(linea: LineaColectivo, calle: Calle, interseccion: Interseccion) {
+    fun cargarDestinos(linea: LineaColectivo, calle: Calle, interseccion: Interseccion) {
         _uiState.value = SeleccionUiState.Loading
-        manager.obtenerSubLineas(linea.codigo, calle.codigo, interseccion.codigo, object : SeleccionColectivoManager.Callback<List<SubLinea>> {
-            override fun onSuccess(data: List<SubLinea>) {
-                _uiState.value = SeleccionUiState.SubLineas(data)
+        manager.obtenerDestinos(linea.codigo, calle.codigo, interseccion.codigo, object : SeleccionColectivoManager.Callback<List<Destino>> {
+            override fun onSuccess(data: List<Destino>) {
+                _uiState.value = SeleccionUiState.Destinos(data)//val regex = Regex("""X\s+([A-Z])\b""")
             }
             override fun onError(error: String) {
                 _uiState.value = SeleccionUiState.Error(error)
@@ -93,35 +99,18 @@ class SeleccionColectivoViewModel : ViewModel() {
         })
     }
 
-    fun seleccionarSubLinea(subLinea: SubLinea) {
-        subLineaSeleccionada = subLinea
-        cargarArribos()
+    fun seleccionarDestino(destino: Destino) {
+        seleccionRepository.setDestino(destino)
     }
 
-    fun cargarArribos() {
-        _uiState.value = SeleccionUiState.Loading
-        // TODO: Completar con los parámetros correctos para obtener arribos
-        val managerArribos = ArribosManager()
-        managerArribos.setListener(object : ArribosManager.Listener {
-            override fun onArribosActualizados(arribos: List<Arribo>) {
-                _uiState.value = SeleccionUiState.Arribos(arribos)
-            }
-            override fun onError(error: String) {
-                _uiState.value = SeleccionUiState.Error(error)
-            }
-            override fun onLoading() {
-                _uiState.value = SeleccionUiState.Loading
-            }
-        })
-        // TODO: Cambiar por los parámetros correctos
-        managerArribos.cargarArribos()
-    }
 
     fun reiniciar() {
-        lineaSeleccionada = null
-        calleSeleccionada = null
-        interseccionSeleccionada = null
-        subLineaSeleccionada = null
+        seleccionRepository.setLinea(null)
+        seleccionRepository.setCalle(null)
+        seleccionRepository.setInterseccion(null)
+        seleccionRepository.setDestino(null)
         _uiState.value = SeleccionUiState.Empty
     }
-} 
+
+
+}

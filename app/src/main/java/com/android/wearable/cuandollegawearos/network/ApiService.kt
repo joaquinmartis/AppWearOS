@@ -6,6 +6,13 @@ import retrofit2.http.POST
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Headers
 
+
+/**
+ * ApiService es una mega clase que engloba todas las posibles acciones que se pueden realizar con la API. Incluye el bypass del CORS.
+ *
+ *
+ */
+
 interface ApiService {
     @FormUrlEncoded
     @Headers(
@@ -17,7 +24,7 @@ interface ApiService {
         @Field("accion") accion: String,
         @Field("identificadorParada") identificadorParada: String,
         @Field("codigoLineaParada") codigoLineaParada: String
-    ): Call<PostResponse>
+    ): Call<ArribosResponseAPI>
 
     @FormUrlEncoded
     @Headers(
@@ -26,8 +33,8 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerLineas(
-        @Field("accion") accion: String // Ejemplo: "RecuperarLineas"
-    ): Call<LineasResponse>
+        @Field("accion") accion: String
+    ): Call<LineasResponseAPI>
 
     @FormUrlEncoded
     @Headers(
@@ -36,9 +43,9 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerCalles(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarCalles"
+        @Field("accion") accion: String,
         @Field("codLinea") codigoLinea: String
-    ): Call<CallesResponse>
+    ): Call<CallesResponseAPI>
 
     @FormUrlEncoded
     @Headers(
@@ -47,10 +54,10 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerIntersecciones(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarIntersecciones"
+        @Field("accion") accion: String,
         @Field("codLinea") codigoLinea: String,
         @Field("codCalle") codigoCalle: String
-    ): Call<InterseccionesResponse>
+    ): Call<InterseccionesResponseAPI>
 
     @FormUrlEncoded
     @Headers(
@@ -59,9 +66,9 @@ interface ApiService {
     )
     @POST("webWS.php")
     fun obtenerDestinos(
-        @Field("accion") accion: String, // Ejemplo: "RecuperarSubLineas"
+        @Field("accion") accion: String,
         @Field("codLinea") codigoLinea: String,
         @Field("codCalle") codigoCalle: String,
         @Field("codInterseccion") codigoInterseccion: String
-    ): Call<DestinosResponse>
+    ): Call<DestinosResponseAPI>
 }

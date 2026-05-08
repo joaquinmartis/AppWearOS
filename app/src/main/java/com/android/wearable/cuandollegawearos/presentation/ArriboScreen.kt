@@ -2,14 +2,8 @@
 
 package com.android.wearable.cuandollegawearos.presentation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,21 +16,34 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
-import com.android.wearable.cuandollegawearos.network.*
-import com.android.wearable.cuandollegawearos.business.*
-import android.util.Log
-import com.android.wearable.cuandollegawearos.business.Arribo
-import com.android.wearable.cuandollegawearos.network.PostResponse
-import com.android.wearable.cuandollegawearos.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import androidx.navigation.NavHostController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column as Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+/**
+ * ArriboScreen es una clase de la UI que se encarga de maquetar y mostrar todo lo que se va a ver en la pantalla. Se comunica
+ * con ArribosViewModel en forma de MVC siendo este ultimo el controlador.
+ *
+ */
 
 @Composable
-fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
+fun ArriboScreen(
+    navController: NavHostController,
+    viewModel: ArribosViewModel = viewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarArribos()
+    }
 
     AppScaffold {
         val columnState = rememberResponsiveColumnState(
@@ -50,47 +57,52 @@ fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
             ScalingLazyColumn(
                 columnState = columnState
             ) {
-                item {
-                    Text(
-                        text = "Próximos Colectivos",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colors.onBackground,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
 
                 when (uiState) {
                     is ArribosUiState.Loading -> {
                         item {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Cargando...",
-                                color = MaterialTheme.colors.onBackground,
-                                fontSize = 14.sp
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Cargando...",
+                                    color = MaterialTheme.colors.onBackground,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
                     is ArribosUiState.Error -> {
                         val error = (uiState as ArribosUiState.Error).message
                         item {
-                            Text(
-                                text = "Error",
-                                color = Color.Red,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = error,
-                                color = Color.Red,
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Error",
+                                    color = Color.Red,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = error,
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                     is ArribosUiState.Success -> {
@@ -107,53 +119,44 @@ fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
                         } else {
                             items(arribos.size) { idx ->
                                 val arribo = arribos[idx]
-                                val colorCoche = arribo.precision.colorAsociado
+                                val colorCoche = arribo.color
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(60.dp)
-                                            .clip(CircleShape)
-                                            .background(if (idx == 0) colorCoche else MaterialTheme.colors.primary),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "🚌",
-                                            fontSize = 24.sp
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = arribo.arribo,
-                                        color = MaterialTheme.colors.primary,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = arribo.descripcionLinea + " - " + arribo.descripcionBandera,
+                                        text = arribo.linea,
                                         color = MaterialTheme.colors.onBackground,
-                                        fontSize = 12.sp
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "Precisión: ${arribo.precision.descripcion}",
+                                        text = arribo.tiempo, // Ej: "4 min"
+                                        color = colorCoche,
+                                        fontSize = 32.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = arribo.sentido,
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Precisión: ${arribo.precision}",
                                         color = MaterialTheme.colors.onBackground,
                                         fontSize = 10.sp
                                     )
-                                    /*if (arribo.desvioEnMinutos() != null) {
-                                        Text(
-                                            text = "Desvío: ${arribo.desvioEnMinutos()} min",
-                                            color = MaterialTheme.colors.onBackground,
-                                            fontSize = 10.sp
-                                        )
-                                    }*/
                                     Spacer(modifier = Modifier.height(12.dp))
                                 }
+
                             }
                         }
                     }
@@ -162,7 +165,7 @@ fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
                 item { Spacer(modifier = Modifier.height(16.dp)) }
                 item {
                     Chip(
-                        onClick = { viewModel.cargarArribos() },
+                        onClick = { viewModel.actualizarArribos() },
                         label = {
                             Text(
                                 text = "Actualizar",
@@ -173,7 +176,21 @@ fun ArriboScreen(viewModel: ArribosViewModel = viewModel()) {
                         enabled = uiState !is ArribosUiState.Loading
                     )
                 }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item {
+                    Chip(
+                        onClick = { navController.navigate("seleccion_colectivo_screen") },
+                        label = {
+                            Text(
+                                text = "Seleccionar colectivo",
+                                fontSize = 14.sp
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
+
         }
     }
 }
