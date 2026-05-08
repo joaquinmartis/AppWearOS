@@ -1,15 +1,15 @@
 package com.android.wearable.cuandollegawearos.presentation
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.ScalingLazyColumn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import com.google.android.horologist.compose.layout.AppScaffold
@@ -19,6 +19,18 @@ import com.google.android.horologist.compose.layout.ScreenScaffold
 fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // El estado Lineas tiene su propia UI a pantalla completa (candado numérico).
+    // No usa AppScaffold/ScalingLazyColumn para poder manejar el bisel directamente.
+    if (uiState is SeleccionUiState.Lineas) {
+        val lineas = (uiState as SeleccionUiState.Lineas).lineas
+        CandadoNumericoSelector(
+            lineas = lineas,
+            onLineaSeleccionada = { viewModel.seleccionarLinea(it) }
+        )
+        return
+    }
+
+    // ── El resto de los estados usan el scaffold y la lista normal ────────────
     AppScaffold {
         val columnState = rememberScalingLazyListState()
         ScreenScaffold(scrollState = columnState) {
@@ -27,6 +39,7 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                 modifier = Modifier.fillMaxSize()
             ) {
                 when (uiState) {
+
                     is SeleccionUiState.Empty -> {
                         item {
                             Button(onClick = { viewModel.cargarLineas() }) {
@@ -34,6 +47,7 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                             }
                         }
                     }
+
                     is SeleccionUiState.Loading -> {
                         item {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp))
@@ -41,52 +55,59 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                             Text("Cargando...", fontSize = 14.sp)
                         }
                     }
+
                     is SeleccionUiState.Lineas -> {
-                        val lineas = (uiState as SeleccionUiState.Lineas).lineas
-                        item {
-                            Text("Elige la línea de colectivo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        }
-                        items(lineas.size) { idx ->
-                            val linea = lineas[idx]
-                            Chip(
-                                onClick = { viewModel.seleccionarLinea(linea) },
-                                label = { Text(linea.nombre) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        // Este branch nunca se alcanza (manejado arriba), pero el
+                        // compilador lo requiere por exhaustividad del when.
                     }
+
                     is SeleccionUiState.Calles -> {
                         val calles = (uiState as SeleccionUiState.Calles).calles
                         item {
-                            Text("Elige la calle", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                "Elige la calle",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         }
                         items(calles.size) { idx ->
                             val calle = calles[idx]
                             Chip(
                                 onClick = { viewModel.seleccionarCalle(calle) },
-                                label = { Text(calle.nombre) },
+                                label = { Text(calle.descripcion) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
+
                     is SeleccionUiState.Intersecciones -> {
-                        val intersecciones = (uiState as SeleccionUiState.Intersecciones).intersecciones
+                        val intersecciones =
+                            (uiState as SeleccionUiState.Intersecciones).intersecciones
                         item {
-                            Text("Elige la intersección", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                "Elige la intersección",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         }
                         items(intersecciones.size) { idx ->
                             val inter = intersecciones[idx]
                             Chip(
                                 onClick = { viewModel.seleccionarInterseccion(inter) },
-                                label = { Text(inter.nombre) },
+                                label = { Text(inter.descripcion) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
+
                     is SeleccionUiState.SubLineas -> {
                         val sublineas = (uiState as SeleccionUiState.SubLineas).sublineas
                         item {
-                            Text("Elige la dirección/sub-línea", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                "Elige la dirección/sub-línea",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         }
                         items(sublineas.size) { idx ->
                             val sub = sublineas[idx]
@@ -97,10 +118,15 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                             )
                         }
                     }
+
                     is SeleccionUiState.Arribos -> {
                         val arribos = (uiState as SeleccionUiState.Arribos).arribos
                         item {
-                            Text("Próximos arribos", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                "Próximos arribos",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         }
                         if (arribos.isEmpty()) {
                             item {
@@ -118,17 +144,27 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                                     Box(
                                         modifier = Modifier
                                             .size(60.dp)
-                                            .background(Color(android.graphics.Color.parseColor(colorCoche))),
+                                            .background(colorCoche),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text("🚌", fontSize = 24.sp)
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text(arribo.arribo, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        arribo.arribo,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Text(arribo.descripcionLinea + " - " + arribo.descripcionBandera, fontSize = 12.sp)
+                                    Text(
+                                        arribo.descripcionLinea + " - " + arribo.descripcionBandera,
+                                        fontSize = 12.sp
+                                    )
                                     Spacer(modifier = Modifier.height(2.dp))
-                                    Text("Precisión: ${arribo.precision.descripcion}", fontSize = 10.sp)
+                                    Text(
+                                        "Precisión: ${arribo.precision.descripcion}",
+                                        fontSize = 10.sp
+                                    )
                                     Spacer(modifier = Modifier.height(12.dp))
                                 }
                             }
@@ -139,6 +175,7 @@ fun SeleccionColectivoScreen(viewModel: SeleccionColectivoViewModel = viewModel(
                             }
                         }
                     }
+
                     is SeleccionUiState.Error -> {
                         val msg = (uiState as SeleccionUiState.Error).message
                         item {
