@@ -1,10 +1,6 @@
 package com.android.wearable.cuandollegawearos.presentation
 
-import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -14,11 +10,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import com.google.android.horologist.compose.layout.AppScaffold
@@ -56,6 +51,18 @@ fun SeleccionColectivoScreen(
     var searchTextIntersecciones by remember { mutableStateOf("") }
 
 
+    // El estado Lineas tiene su propia UI a pantalla completa (candado numérico).
+    // No usa AppScaffold/ScalingLazyColumn para poder manejar el bisel directamente.
+    if (uiState is SeleccionUiState.Lineas) {
+        val lineas = (uiState as SeleccionUiState.Lineas).lineas
+        CandadoNumericoSelector(
+            lineas = lineas,
+            onLineaSeleccionada = { viewModel.seleccionarLinea(it) }
+        )
+        return
+    }
+
+    // ── El resto de los estados usan el scaffold y la lista normal ────────────
     AppScaffold {
         val columnState = rememberScalingLazyListState()
         ScreenScaffold(scrollState = columnState) {
@@ -64,6 +71,7 @@ fun SeleccionColectivoScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 when (uiState) {
+
                     is SeleccionUiState.Empty -> {
                         item {
                             Chip(
@@ -84,6 +92,7 @@ fun SeleccionColectivoScreen(
                             )
                         }
                     }
+
                     is SeleccionUiState.Loading -> {
                         item {
                             Column(
@@ -104,48 +113,12 @@ fun SeleccionColectivoScreen(
                             }
                         }
                     }
+
                     is SeleccionUiState.Lineas -> {
-                        val allLineas = (uiState as SeleccionUiState.Lineas).lineas
-                        // Aplica filtro fuzzy cuando el usuario escribe algo
-                        val lineasFiltradas = if (searchTextLineas.isBlank()) {
-                            allLineas
-                        } else {
-                            allLineas.fuzzySearchByLinea(searchTextLineas, threshold = 80)
-                        }
-
-                        // 2) Título
-                        item {
-                            Text(
-                                text = "Elige la línea",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
-
-                        item {
-                            SearchChip(
-                                searchText = searchTextLineas,
-                                onSearchTextChange = { searchTextLineas = it }
-                            )
-                        }
-
-
-
-                        // 3) Lista filtrada
-                        items(lineasFiltradas.size) { idx ->
-                            val linea = lineasFiltradas[idx]
-                            Chip(
-                                onClick = { viewModel.seleccionarLinea(linea) },
-                                label = { Text(linea.nombre) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            )
-                        }
-
-
+                        // Este branch nunca se alcanza (manejado arriba), pero el
+                        // compilador lo requiere por exhaustividad del when.
                     }
+
                     is SeleccionUiState.Calles -> {
                         val allcalles = (uiState as SeleccionUiState.Calles).calles
                         // Aplica filtro fuzzy cuando el usuario escribe algo
@@ -166,9 +139,10 @@ fun SeleccionColectivoScreen(
                         }
 
                         item {
-                            SearchChip(
-                                searchText = searchTextCalles,
-                                onSearchTextChange = { searchTextCalles = it }
+                            Text(
+                                "Elige la calle",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
                             )
                         }
 
@@ -227,10 +201,56 @@ fun SeleccionColectivoScreen(
                             )
                         }
                     }
-                    is SeleccionUiState.Destinos -> {
-                        val destinos = (uiState as SeleccionUiState.Destinos).destinos
+
+                    is SeleccionUiState.Arribos -> {
+                        val arribos = (uiState as SeleccionUiState.Arribos).arribos
                         item {
-                            Text("Elige el destino", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                "Próximos arribos",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        }
+                        if (arribos.isEmpty()) {
+                            item {
+                                Text("Sin arribos disponibles", color = Color.Gray)
+                            }
+                        } else {
+                            items(arribos.size) { idx ->
+                                val arribo = arribos[idx]
+                                val colorCoche = arribo.precision.colorAsociado
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(60.dp)
+                                            .background(colorCoche),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("🚌", fontSize = 24.sp)
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        arribo.arribo,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        arribo.descripcionLinea + " - " + arribo.descripcionBandera,
+                                        fontSize = 12.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        "Precisión: ${arribo.precision.descripcion}",
+                                        fontSize = 10.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+                            }
                         }
                         items(destinos.size) { idx ->
                             val destino = destinos[idx]
@@ -244,6 +264,7 @@ fun SeleccionColectivoScreen(
                             )
                         }
                     }
+
                     is SeleccionUiState.Error -> {
                         item {
                             val msg = (uiState as SeleccionUiState.Error).message
